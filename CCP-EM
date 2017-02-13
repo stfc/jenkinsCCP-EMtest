@@ -1,7 +1,5 @@
 // CCP-EM pipeline
 
-#!groovy
-
 node {
     stage('Load Modules'){
         sh 'module load gcc cmake lapack blas'
