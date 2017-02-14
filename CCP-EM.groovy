@@ -9,12 +9,12 @@ node {
                 cd devtools/'
     }
     stage('Download the Deps'){
+        sh 'pwd'
         sh './cj --no-interact update bzr setuptools lxml qt4 ccpem >> downloads.log 2>&1'
     }
     stage('Build CCP-EM'){
-        sh 'pwd'
         sh './cj --no-interact tinderbox -o buildresults bzr setuptools lxml qt4 ccpem'
-        
+                
         sh 'cd install \n\
             tar -czf ccpem_binaries.tar.gz * \n\
             touch ~/.agree2ccp4v6 \n\
