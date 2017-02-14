@@ -5,13 +5,11 @@ node {
         sh 'module load gcc cmake lapack blas'
     }
     stage('Checkout') {
-        sh 'bzr co bzr+http://oisin.rc-harwell.ac.uk/bzr/devtools/trunk devtools\n\
-                cd devtools/'
+        sh 'bzr co bzr+http://oisin.rc-harwell.ac.uk/bzr/devtools/trunk devtools'
     }
     stage('Download the Deps'){
-        sh 'pwd\n\
-            ls'
-        sh './cj --no-interact update bzr setuptools lxml qt4 ccpem >> downloads.log 2>&1'
+        sh 'cd devtools/\n\
+            ./cj --no-interact update bzr setuptools lxml qt4 ccpem >> downloads.log 2>&1'
     }
     stage('Build CCP-EM'){
         sh './cj --no-interact tinderbox -o buildresults bzr setuptools lxml qt4 ccpem'
