@@ -9,29 +9,7 @@ node {
                 cd devtools/'
     }
     stage('Download the Deps'){
-        sh 'function fail {\n\
-                echo $1 >&2\n\
-                exit 1\n\
-            }\n\
-            \n\
-            function retry {\n\
-                local n=1\n\
-                local max=5\n\
-                local delay=10\n\
-                while true; do\n\
-                    "$@" && break || {\n\
-                        if [[ $n -lt $max ]]; then\n\
-                            ((n++))\n\
-                            echo "Command failed. Attempt $n/$max:"\n\
-                            sleep $delay;\n\
-                        else\n\
-                            fail "The command has failed after $n attempts."\n\
-                        fi\n\
-                    }\n\
-                done \n\
-            }\n\
-            \n\
-            retry ./cj --no-interact update bzr setuptools lxml qt4 ccpem >> downloads.log 2>&1'
+        sh './cj --no-interact update bzr setuptools lxml qt4 ccpem >> downloads.log 2>&1'
     }
     stage('Build CCP-EM'){
         sh './cj --no-interact tinderbox -o buildresults bzr setuptools lxml qt4 ccpem'
