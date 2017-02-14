@@ -9,7 +9,8 @@ node {
                 cd devtools/'
     }
     stage('Download the Deps'){
-        sh 'pwd'
+        sh 'pwd\n\
+            ls'
         sh './cj --no-interact update bzr setuptools lxml qt4 ccpem >> downloads.log 2>&1'
     }
     stage('Build CCP-EM'){
