@@ -7,12 +7,19 @@ node {
     stage('Checkout') {
         sh 'bzr co bzr+http://oisin.rc-harwell.ac.uk/bzr/devtools/trunk devtools'
     }
+    
+    try{
     stage('Download the Deps'){
         sh 'cd devtools/\n\
             pwd\n\
             ./cj --no-interact update bzr setuptools lxml qt4 ccpem >> downloads.log 2>&1'
         archiveArtifacts artifacts: '**/buildresults/**, **/devtools/install/ccpem_binaries.tar.gz, **/downloads.log', excludes: null
+        }
+    } catch (e) {
+        echo "Download failed: " + e.toString()
+        throw e
     }
+    
     stage('Build CCP-EM'){
         sh 'cd devtools/\n\
             pwd\n\
