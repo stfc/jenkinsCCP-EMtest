@@ -11,6 +11,7 @@ node {
         sh 'cd devtools/\n\
             pwd\n\
             ./cj --no-interact update bzr setuptools lxml qt4 ccpem >> downloads.log 2>&1'
+        archiveArtifacts artifacts: '**/buildresults/**, **/devtools/install/ccpem_binaries.tar.gz, **/downloads.log', excludes: null
     }
     stage('Build CCP-EM'){
         sh 'cd devtools/\n\
