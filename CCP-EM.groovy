@@ -16,17 +16,18 @@ node {
         sh 'bzr co bzr+http://oisin.rc-harwell.ac.uk/bzr/devtools/trunk devtools'
     }
     
-    try{
-        stage('Download the Deps'){
+    stage('Download the Deps'){
+        try{
             download()
+        } catch (e) {
+            echo "Download failed on attempt " + attempt +": " + e.toString()
+            retry(2){
+                attempt = attempt++
+                echo "Now making attempt " + attempt
+                download()
+            }
         }
-    } catch (e) {
-        echo "Download failed on attempt " + attempt +": " + e.toString()
-        retry(2){
-            attempt = attempt++
-            echo "Now making attempt " + attempt
-            download()
-        }        
+        archiveArtifacts artifacts: '**/buildresults/**, **/devtools/install/ccpem_binaries.tar.gz, **/downloads.log', excludes: null
     }
     
     stage('Build CCP-EM'){
