@@ -1,23 +1,32 @@
 // CCP-EM pipeline
 
+def download(){
+    sh 'cd devtools/\n\
+        pwd\n\
+        ./cj --no-interact update bzr setuptools lxml qt4 ccpem >> downloads.log 2>&1'
+}
+int attempt = 1
+
 node {
     stage('Load Modules'){
         sh 'module load gcc cmake lapack blas'
     }
+
     stage('Checkout') {
         sh 'bzr co bzr+http://oisin.rc-harwell.ac.uk/bzr/devtools/trunk devtools'
     }
     
     try{
-    stage('Download the Deps'){
-        sh 'cd devtools/\n\
-            pwd\n\
-            ./cj --no-interact update bzr setuptools lxml qt4 ccpem >> downloads.log 2>&1'
-        archiveArtifacts artifacts: '**/buildresults/**, **/devtools/install/ccpem_binaries.tar.gz, **/downloads.log', excludes: null
+        stage('Download the Deps'){
+            download()
         }
     } catch (e) {
-        echo "Download failed: " + e.toString()
-        throw e
+        echo "Download failed on attempt " + attempt +": " + e.toString()
+        retry(2){
+            attempt = attempt++
+            echo "Now making attempt " + attempt
+            download()
+        }        
     }
     
     stage('Build CCP-EM'){
