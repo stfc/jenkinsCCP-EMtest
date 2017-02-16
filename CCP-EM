@@ -34,7 +34,7 @@ node {
     
     stage('Retry Block'){
         try{
-            downloadStage()
+            downloadStage(attempt)
         } catch (e){
             echo "Moving on"
         }
