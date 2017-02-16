@@ -5,7 +5,7 @@ def download(){
         pwd\n\
         ./cj --no-interact update bzr setuptools lxml qt4 ccpem >> downloads.log 2>&1'
 }
-int attempt = 1
+def attempt = 1
 
 node {
     stage('Load Modules'){
@@ -22,7 +22,7 @@ node {
         } catch (e) {
             echo "Download failed on attempt " + attempt +": " + e.toString()
             retry(2){
-                attempt = attempt++
+                attempt++
                 echo "Now making attempt " + attempt
                 download()
             }
