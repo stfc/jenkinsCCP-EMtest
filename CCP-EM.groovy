@@ -1,12 +1,28 @@
 // CCP-EM pipeline
 
+def attempt = 1
+
 def download(){
     sh 'cd devtools/\n\
         pwd\n\
         ./cj --no-interact update bzr setuptools lxml qt4 ccpem >> downloads.log 2>&1'
 }
-def attempt = 1
-
+def downloadStage(attempt){
+    stage('Download the Deps')
+        try{
+            echo "Starting attempt number " + attempt
+            download()
+        } catch(e){
+            echo "Download failed on attempt " + attempt +": " + e.toString()
+            attempt++
+            if( attempt < 4){
+                downloadStage(attempt)
+            } else{
+                echo "Failed on all " + attempt + " attempts"
+            }          
+        }
+    }
+   
 node {
     stage('Load Modules'){
         sh 'module load gcc cmake lapack blas'
@@ -15,25 +31,15 @@ node {
     stage('Checkout') {
         sh 'bzr co bzr+http://oisin.rc-harwell.ac.uk/bzr/devtools/trunk devtools'
     }
+    
     stage('Retry Block'){
-    try{
-        stage('Download the Deps'){
-            try{
-                download()
-            } catch (e) {
-                echo "Download failed on attempt " + attempt +": " + e.toString()
-                retry(2){
-                    attempt++
-                    echo "Now making attempt " + attempt
-                    download()
-                }
-            }
+        try{
+            downloadStage()
+        } catch (e){
+            echo "Moving on"
         }
-    }catch (e){
-        echo "Failed after retries. Progressing with builds."
     }
-            archiveArtifacts artifacts: '**/buildresults/**, **/devtools/install/ccpem_binaries.tar.gz, **/downloads.log', excludes: null
-    }
+    
     
     stage('Build CCP-EM'){
         sh 'cd devtools/\n\
@@ -56,3 +62,30 @@ node {
     }
     archiveArtifacts artifacts: '**/buildresults/**, **/devtools/install/ccpem_binaries.tar.gz, **/downloads.log', excludes: null
 }
+
+
+
+/**
+ * Old block code:
+ * 
+stage('Retry Block'){
+    try{
+        stage('Download the Deps'){
+            try{
+                download()
+            } catch (e) {
+                echo "Download failed on attempt " + attempt +": " + e.toString()
+                retry(2){
+                    attempt++
+                    echo "Now making attempt " + attempt
+                    download()
+                }
+            }
+        }
+    }catch (e){
+        echo "Failed after retries.\n\
+              Error thrown:" + e.toString() + "\n\
+              Progressing with build stage."
+    }
+    }
+*/
