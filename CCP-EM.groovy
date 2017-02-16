@@ -39,6 +39,8 @@ node {
         sh 'cd devtools/\n\
             pwd\n\
             ./cj --no-interact tinderbox -o buildresults bzr setuptools lxml qt4 ccpem'
+        
+        archiveArtifacts artifacts: '**/buildresults/**, **/devtools/install/ccpem_binaries.tar.gz, **/downloads.log', excludes: null
                 
         sh 'cd devtools/\n\
             pwd\n\
@@ -52,4 +54,5 @@ node {
             cd ../../\n\
             xvfb-run ccpem-python install/lib/py2/ccpem/unittests/ccpem/run_ccpem_pytest.py -xml=True || true'
     }
+    archiveArtifacts artifacts: '**/buildresults/**, **/devtools/install/ccpem_binaries.tar.gz, **/downloads.log', excludes: null
 }
