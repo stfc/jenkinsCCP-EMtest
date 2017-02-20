@@ -7,22 +7,7 @@ def download(){
         pwd\n\
         ./cj --no-interact update bzr setuptools lxml qt4 ccpem >> downloads.log 2>&1'
 }
-def downloadStage(attempt){
-    stage('Download the Deps')
-        try{
-            echo "Starting attempt number " + attempt
-            download()
-        } catch(e){
-            echo "Download failed on attempt " + attempt +": " + e.toString()
-            attempt++
-            if( attempt < 4){
-                downloadStage(attempt)
-            } else{
-                echo "Failed on all " + attempt + " attempts"
-            }          
-        }
-    }
-   
+
 node {
     stage('Load Modules'){
         sh 'module load gcc cmake lapack blas'
@@ -34,9 +19,24 @@ node {
     
     stage('Retry Block'){
         try{
-            downloadStage(attempt)
-        } catch (e){
-            echo "Moving on"
+            stage('Download the Deps'){
+                try{
+                    download()
+                } catch (e) {
+                    stage('Retry attempts'){
+                        echo "Download failed on attempt " + attempt +": " + e.toString()
+                        retry(2){
+                            attempt++
+                            echo "Now making attempt " + attempt
+                            download()
+                        }
+                    }
+                }
+            }
+        }catch (e){
+            echo "Failed after retries.\n\
+                Error thrown:" + e.toString() + "\n\
+                Progressing with build stage."
         }
     }
     
@@ -68,24 +68,29 @@ node {
 /**
  * Old block code:
  * 
-stage('Retry Block'){
-    try{
-        stage('Download the Deps'){
-            try{
-                download()
-            } catch (e) {
-                echo "Download failed on attempt " + attempt +": " + e.toString()
-                retry(2){
-                    attempt++
-                    echo "Now making attempt " + attempt
-                    download()
-                }
-            }
+
+def downloadStage(attempt){
+    stage('Download the Deps')
+        try{
+            echo "Starting attempt number " + attempt
+            download()
+        } catch(e){
+            echo "Download failed on attempt " + attempt +": " + e.toString()
+            attempt++
+            if( attempt < 4){
+                downloadStage(attempt)
+            } else{
+                echo "Failed on all " + attempt + " attempts"
+            }          
         }
-    }catch (e){
-        echo "Failed after retries.\n\
-              Error thrown:" + e.toString() + "\n\
-              Progressing with build stage."
     }
+   
+
+stage('Retry Block'){
+        try{
+            downloadStage(attempt)
+        } catch (e){
+            echo "Moving on"
+        }
     }
 */
