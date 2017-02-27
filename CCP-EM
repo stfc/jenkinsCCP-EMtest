@@ -1,8 +1,4 @@
-// CCP-EM pipeline
-
 #!groovy
-
-def attempt = 1
 
 def download(){
     sh 'cd devtools/\n\
@@ -22,21 +18,21 @@ node {
     stage('Retry Block'){
         try{
             stage('Download the Deps'){
-                try{
-                    download()
-                } catch (e) {
-                    stage('Retry attempts'){
-                        echo "Download failed on attempt " + attempt +": " + e.toString()
-                        retry(2){
+                for(int attempt = 1; attempt<4; attempt++){
+                    try{
+                        download()
+                    } catch (e) {
+                        stage('Retry attempts'){
+                            echo "Download failed on attempt " + attempt +": " + e.toString()
                             attempt++
                             echo "Now making attempt " + attempt
-                            download()
+                            }
                         }
                     }
                 }
             }
         }catch (e){
-            echo "Failed after retries.\n\
+            echo "Failed after " + attempt-1 + " retries.\n\
                 Error thrown:" + e.toString() + "\n\
                 Progressing with build stage."
         }
