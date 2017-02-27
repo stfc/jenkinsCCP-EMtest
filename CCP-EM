@@ -30,8 +30,7 @@ node {
                         }
                     }
                 }
-            }
-        }catch (e){
+        } catch (e){
             echo "Failed after " + attempt-1 + " retries.\n\
                 Error thrown:" + e.toString() + "\n\
                 Progressing with build stage."
