@@ -1,5 +1,7 @@
 // CCP-EM pipeline
 
+#!groovy
+
 def attempt = 1
 
 def download(){
