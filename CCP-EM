@@ -24,7 +24,6 @@ node {
                     } catch (e) {
                         stage('Retry attempts'){
                             echo "Download failed on attempt " + attempt +": " + e.toString()
-                            attempt++
                             echo "Now making attempt " + attempt
                             }
                         }
