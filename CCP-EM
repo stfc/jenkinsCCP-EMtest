@@ -24,12 +24,14 @@ node {
                     } catch (e) {
                         stage('Retry attempts'){
                             echo "Download failed on attempt " + attempt +": " + e.toString()
+                            attempt++
                             echo "Now making attempt " + attempt
                             }
                         }
                     }
                 }
         } catch (e){
+            archiveArtifacts artifacts: '**/buildresults/**, **/devtools/install/ccpem_binaries.tar.gz, **/downloads.log', excludes: null
             echo "Failed after " + attempt-1 + " retries.\n\
                 Error thrown:" + e.toString() + "\n\
                 Progressing with build stage."
