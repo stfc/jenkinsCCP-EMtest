@@ -63,6 +63,7 @@ node {
         echo "Error thrown: "+ e.toString() +"\n\
               Archiving artifacts."
         archiveArtifacts artifacts: '**/buildresults/**, **/devtools/install/ccpem_binaries.tar.gz, **/downloads.log', excludes: null
+    }
 }
 
 
